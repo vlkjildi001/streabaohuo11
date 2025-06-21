@@ -2,7 +2,7 @@ name: Auto Click Streamlit
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 */12 * * *'   # 每12小时执行一次
   workflow_dispatch:
 
 jobs:
@@ -13,9 +13,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        persist-credentials: false
+        persist-credentials: false  # 关闭默认 GITHUB_TOKEN 的权限
 
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
@@ -26,7 +26,7 @@ jobs:
     - name: Run auto click script
       run: python auto_click.py
 
-    - name: Commit log file
+    - name: Commit and push log
       env:
         MY_PAT: ${{ secrets.MY_PAT }}
       run: |
