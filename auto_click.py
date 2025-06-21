@@ -41,7 +41,7 @@ def clean_old_logs():
                     if timestamp >= cutoff:
                         cleaned_lines.append(line)
                 except:
-                    cleaned_lines.append(line)  # 非时间行保留
+                    cleaned_lines.append(line)
             else:
                 cleaned_lines.append(line)
 
@@ -56,19 +56,26 @@ clean_old_logs()
 
 try:
     driver.get("https://app-8w4wwungk5qvcotqhlsvgr.streamlit.app/")
-    time.sleep(30)  # 等待页面加载
+    
+    max_wait = 60  # 最长等待时间（秒）
+    interval = 2   # 检查间隔（秒）
+    found = False
 
-    # 查找按钮
-    buttons = driver.find_elements(By.XPATH, "//button[contains(., '启动部署')]")
+    for i in range(0, max_wait, interval):
+        time.sleep(interval)
+        buttons = driver.find_elements(By.XPATH, "//button[contains(., '启动部署')]")
+        if buttons:
+            found = True
+            buttons[0].click()
+            break
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if buttons:
-        buttons[0].click()
-        log_entry = f"[{timestamp}] 按钮已点击\n"
-        print("检测到按钮，已点击。")
+    if found:
+        log_entry = f"[{timestamp}] ✅ 按钮已点击\n"
+        print("✅ 检测到按钮，已点击。")
     else:
-        log_entry = f"[{timestamp}] 未发现按钮，未执行点击\n"
-        print("未检测到按钮，跳过。")
+        log_entry = f"[{timestamp}] ⚠️ 未发现按钮，未执行点击\n"
+        print("⚠️ 未检测到按钮，跳过。")
 
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(log_entry)
@@ -76,8 +83,8 @@ try:
 except Exception as e:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(log_file, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] 错误：{str(e)}\n")
-    print(f"发生错误：{e}")
+        f.write(f"[{timestamp}] ❌ 错误：{str(e)}\n")
+    print(f"❌ 发生错误：{e}")
 
 finally:
     driver.quit()
