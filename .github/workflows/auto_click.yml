@@ -2,11 +2,8 @@ name: Auto Click Streamlit
 
 on:
   schedule:
-    - cron: '0 */12 * * *'   # 每 12 小时运行一次
-  workflow_dispatch:         # 支持手动触发
-
-permissions:
-  contents: write            # 给 workflow 写权限（也可删掉，改用 PAT）
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
 
 jobs:
   clicker:
@@ -16,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        persist-credentials: false  # 禁用默认 token，改用 PAT
+        persist-credentials: false
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -24,13 +21,12 @@ jobs:
         python-version: '3.x'
 
     - name: Install dependencies
-      run: |
-        pip install selenium webdriver-manager
+      run: pip install selenium webdriver-manager
 
     - name: Run auto click script
       run: python auto_click.py
 
-    - name: Commit and push log file
+    - name: Commit log file
       env:
         MY_PAT: ${{ secrets.MY_PAT }}
       run: |
@@ -38,7 +34,7 @@ jobs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
         if [ ! -f click_log.txt ]; then
-          echo "初始化日志文件于 $(date +'%Y-%m-%d %H:%M:%S')" > click_log.txt
+          echo "初始化日志文件于 $(date '+%Y-%m-%d %H:%M:%S')" > click_log.txt
         fi
 
         git add click_log.txt
@@ -46,6 +42,6 @@ jobs:
         if git diff --cached --quiet; then
           echo "无变化，无需提交"
         else
-          git commit -m "更新日志: $(date +'%Y-%m-%d %H:%M:%S')"
+          git commit -m "更新日志: $(date '+%Y-%m-%d %H:%M:%S')"
           git push https://x-access-token:${MY_PAT}@github.com/${{ github.repository }}.git HEAD:main
         fi
