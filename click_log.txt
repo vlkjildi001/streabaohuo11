@@ -5,3 +5,26 @@
 [2025-06-21 00:53:37] 未发现按钮，未执行点击
 [2025-06-21 12:18:27] 未发现按钮，未执行点击
 [2025-06-21 13:17:37] ⚠️ 未发现按钮，未执行点击
+[2025-06-21 13:25:46] 未发现按钮或点击失败: Message: 
+Stacktrace:
+#0 0x5594df27045a <unknown>
+#1 0x5594ded15760 <unknown>
+#2 0x5594ded67127 <unknown>
+#3 0x5594ded67321 <unknown>
+#4 0x5594dedb5e94 <unknown>
+#5 0x5594ded8ce7d <unknown>
+#6 0x5594dedb330b <unknown>
+#7 0x5594ded8cc23 <unknown>
+#8 0x5594ded594a5 <unknown>
+#9 0x5594ded5a111 <unknown>
+#10 0x5594df234f1b <unknown>
+#11 0x5594df238e19 <unknown>
+#12 0x5594df21bac9 <unknown>
+#13 0x5594df2399c8 <unknown>
+#14 0x5594df20034f <unknown>
+#15 0x5594df25da28 <unknown>
+#16 0x5594df25dc06 <unknown>
+#17 0x5594df26f336 <unknown>
+#18 0x7f5e0429caa4 <unknown>
+#19 0x7f5e04329c3c <unknown>
+
