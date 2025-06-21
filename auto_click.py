@@ -2,26 +2,18 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime, timedelta
 import time
 import os
 
-# 设置无头浏览器参数
-options = Options()
-options.add_argument('--headless')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-
-# 创建 Service 对象
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
-
-# 日志文件路径
+# 日志文件路径和保留天数
 log_file = "click_log.txt"
-log_retention_days = 2  # 保留天数
+log_retention_days = 2
 
-# 清理旧日志记录
+# 清理旧日志
 def clean_old_logs():
     if not os.path.exists(log_file):
         return
@@ -41,7 +33,7 @@ def clean_old_logs():
                     if timestamp >= cutoff:
                         cleaned_lines.append(line)
                 except:
-                    cleaned_lines.append(line)
+                    cleaned_lines.append(line)  # 非时间行保留
             else:
                 cleaned_lines.append(line)
 
@@ -51,31 +43,30 @@ def clean_old_logs():
     except Exception as e:
         print(f"日志清理失败：{e}")
 
-# 开始执行
-clean_old_logs()
+# 设置无头浏览器参数
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
 try:
+    clean_old_logs()
+
     driver.get("https://app-8w4wwungk5qvcotqhlsvgr.streamlit.app/")
     
-    max_wait = 60  # 最长等待时间（秒）
-    interval = 2   # 检查间隔（秒）
-    found = False
-
-    for i in range(0, max_wait, interval):
-        time.sleep(interval)
-        buttons = driver.find_elements(By.XPATH, "//button[contains(., '启动部署')]")
-        if buttons:
-            found = True
-            buttons[0].click()
-            break
-
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if found:
-        log_entry = f"[{timestamp}] ✅ 按钮已点击\n"
-        print("✅ 检测到按钮，已点击。")
-    else:
-        log_entry = f"[{timestamp}] ⚠️ 未发现按钮，未执行点击\n"
-        print("⚠️ 未检测到按钮，跳过。")
+    wait = WebDriverWait(driver, 30)
+    try:
+        # 显式等待“启动部署”按钮可点击
+        button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), '启动部署')]")))
+        button.click()
+        log_entry = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 按钮已点击\n"
+        print("检测到按钮，已点击。")
+    except Exception as e:
+        log_entry = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 未发现按钮或点击失败: {e}\n"
+        print(f"未检测到按钮或点击失败: {e}")
 
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(log_entry)
@@ -83,8 +74,8 @@ try:
 except Exception as e:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(log_file, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] ❌ 错误：{str(e)}\n")
-    print(f"❌ 发生错误：{e}")
+        f.write(f"[{timestamp}] 脚本运行错误：{str(e)}\n")
+    print(f"脚本运行错误：{e}")
 
 finally:
     driver.quit()
